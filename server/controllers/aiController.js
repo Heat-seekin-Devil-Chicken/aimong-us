@@ -9,9 +9,7 @@ const aiController = {}
 const createErr = (errObj) => {
   const { method, type, err } = errObj;
   return {
-    log: `dbController.${method} ${type}: ERROR: ${
-      typeof err === 'object' ? JSON.stringify(err) : err
-    }`,
+    log: `dbController.${method} ${type}: ERROR: ${err}`,
     message: {
       err: `Error occurred in dbController.${method}. Check server logs for more details.`,
     },
@@ -39,14 +37,14 @@ aiController.getAiMessage = (req, res, next) => {
         been sent in the chatroom so far: ${shortenedMessages}. Write a fun message to send as if you were 
         a participant in this chatroom, but do everything you can to hide the fact that you are not human.`,
         temperature: 0.9,
-        max_tokens: 25,
+        max_tokens: 50,
 
       }),
     })
     .then((response) => {
       // req.body.message = response.data.choices[0].text;
       console.log('this is working');
-      return response.json()
+      return response.json();
       // console.log(response);
       // console.log(req.body.message);
       // return next();
