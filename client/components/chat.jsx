@@ -54,7 +54,7 @@ const Chat = () => {
       const response = await fetch('/api/messages');
       if (response.status === 200) {
         const body = await response.json();
-        setMessages(body.messages);
+        setMessages(body.messages.reverse());
       } else {
         const error = response.json();
         throw new Error(error.message);
@@ -131,7 +131,7 @@ const Chat = () => {
 
   socket.on('receive-message', (message) => {
     console.log('i never get ran');
-    setMessages([...messages, message]);
+    setMessages([message, ...messages]);
     fetchAllMessages();
   });
 
@@ -175,7 +175,7 @@ const Chat = () => {
   return (
     <div className="chatroom">
 
-      <h1 className="header" onClick={handleAiMessage}>
+      <h1 className="header">
         AI-mong Us
       </h1>
 
@@ -205,8 +205,8 @@ const Chat = () => {
               handleMessageSend();
               if (getRandomInt(2) === 0) {
               postAiMessage();
-              fetchAllMessages();
               }
+              fetchAllMessages();
             }
           }}
         ></input>

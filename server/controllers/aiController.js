@@ -33,9 +33,7 @@ aiController.getAiMessage = (req, res, next) => {
       },
       body: JSON.stringify({
         model: 'text-davinci-003',
-        prompt: `You are in a online chatroom, and this array contains the messages that have 
-        been sent in the chatroom so far: ${shortenedMessages}. Write a fun message to send as if you were 
-        a participant in this chatroom, but do everything you can to hide the fact that you are not human.`,
+        prompt: `You are in a online chatroom. Write a message to send based on the messages that have been sent in the chatroom so far: ${shortenedMessages}.`,
         temperature: 0.9,
         max_tokens: 50,
 
