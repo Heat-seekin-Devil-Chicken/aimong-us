@@ -22,9 +22,10 @@ const Chat = () => {
     setMessageInput('');
   };
 
-  const handleAiMessage = () => {
-    socket.emit('ai-message');
-  };
+  // const handleAiMessageSend = () => {
+  //   socket.emit('ai-message', { sender_id: userId, message: messageInput })
+  //   setMessageInput('');
+  // };
 
   // On mount fetch sender id
   useEffect(() => {
@@ -55,6 +56,21 @@ const Chat = () => {
       }
     };
 
+    // const postAiMessage = async () => {
+    //   try {
+    //     fetch('/api/ai-message', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       }
+    //     })
+    //     .then((response) => response.json());
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
+    // }
+
+    // postAiMessage();
     fetchAndSetuserId();
     fetchAllMessages();
   }, []);

@@ -21,6 +21,7 @@ const routerAPI = require('./routes/api.js');
 const userController = require('./controllers/userController.js');
 const dbController = require('./controllers/dbController.js');
 const cookieController = require('./controllers/cookieController.js');
+const aiController = require('./controllers/aiController.js');
 
 app.use(express.json());
 app.use(cookieParser());
@@ -95,12 +96,14 @@ io.on('connection', (socket) => {
     io.emit('receive-message', data);
   });
 
-  socket.on('ai-message', async (body) => {
-    // const message =  await aiController.getAiMessage();
+  // socket.on('ai-message', async (body) => {
+  //   const data =  await dbController.sendMessageFromSocket(body);
 
-    // io.emit('receive-message')
-    console.log('test');
-  });
+  //   body.message;
+
+  //   io.emit('receive-message',data);
+  //   console.log('test');
+  // });
 });
 
 //catch-all route

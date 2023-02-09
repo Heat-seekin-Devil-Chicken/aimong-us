@@ -39,7 +39,7 @@ aiController.getAiMessage = (req, res, next) => {
         been sent in the chatroom so far: ${shortenedMessages}. Write a fun message to send as if you were 
         a participant in this chatroom, but do everything you can to hide the fact that you are not human.`,
         temperature: 0.9,
-        max_tokens: 50,
+        max_tokens: 25,
 
       }),
     })
