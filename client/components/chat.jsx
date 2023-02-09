@@ -24,9 +24,10 @@ const Chat = () => {
     setMessageInput('');
   };
 
-  const handleAiMessage = () => {
-    socket.emit('ai-message');
-  };
+  // const handleAiMessageSend = () => {
+  //   socket.emit('ai-message', { sender_id: userId, message: messageInput })
+  //   setMessageInput('');
+  // };
 
   // On mount fetch sender id
   useEffect(() => {
@@ -56,6 +57,18 @@ const Chat = () => {
         console.log(err);
       }
     };
+
+
+    // const postAiMessage = async () => {
+    //   try {
+    //     fetch('/api/ai-message', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       }
+    //     })
+    //     .then((response) => response.json());
+
     // const fetchLeaderBoard = async () => {
     //   try {
     //     const response = await fetch('/check', {method: 'POST', headers: {'Content-Type': 'application/json'}});
@@ -67,12 +80,17 @@ const Chat = () => {
     //       const error = response.json();
     //       throw new Error(error.message);
     //     }
+
     //   } catch (err) {
     //     console.log(err)
     //   }
     // }
 
+
+    // postAiMessage();
+    
     // fetchLeaderBoard()
+
     fetchAndSetuserId();
     fetchAllMessages();
   }, []);
