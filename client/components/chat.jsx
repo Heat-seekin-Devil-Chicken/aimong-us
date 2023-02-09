@@ -9,66 +9,73 @@ const Chat = () => {
   // Set initial states
   const [messages, setMessages] = useState([]);
   const [leaderboard, setLeaderboard] = useState({ first: '', second: '', third: '' });
-  console.log(leaderboard);
   const [messageInput, setMessageInput] = useState('');
-  const [pollIntervalId, setPollIntervalId] = useState(null);
   const [userId, setuserId] = useState(null);
   const [userScore, setUserScore] = useState(null);
+
 
   // Handler to update state of controlled input
   const handleMessageInput = (e) => setMessageInput(e.target.value);
 
   // Handler to create a new message
   const handleMessageSend = () => {
-    socket.emit('send-message', { sender_id: userId, message: messageInput });
-    setMessageInput('');
-  };
-
+      socket.emit('send-message', { sender_id: userId, message: messageInput });
+      setMessageInput('');
+    }
+  
   // const handleAiMessageSend = () => {
   //   socket.emit('ai-message', { sender_id: userId, message: messageInput })
   //   setMessageInput('');
   // };
 
+  function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
+
+  const postAiMessage = async () => {
+    try {
+      fetch('/api/ai-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+      // .then((response) => response.json())
+      // .then(data => console.log(data));
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const fetchAllMessages = async () => {
+    try {
+      const response = await fetch('/api/messages');
+      if (response.status === 200) {
+        const body = await response.json();
+        setMessages(body.messages);
+      } else {
+        const error = response.json();
+        throw new Error(error.message);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchAndSetuserId = async () => {
+    try {
+      const response = await fetch('/api/user_id'); // update endpoint when ready
+      const userId = await response.json();
+      setuserId(userId.user_id); // update properties to match up if needed
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   // On mount fetch sender id
   useEffect(() => {
+    console.log('USe effect fired');
     socket.on('connect', () => console.log('websockets babyyyyyy'));
-
-    const fetchAndSetuserId = async () => {
-      try {
-        const response = await fetch('/api/user_id'); // update endpoint when ready
-        const userId = await response.json();
-        setuserId(userId.user_id); // update properties to match up if needed
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    const fetchAllMessages = async () => {
-      try {
-        const response = await fetch('/api/messages');
-        if (response.status === 200) {
-          const body = await response.json();
-          setMessages(body.messages);
-        } else {
-          const error = response.json();
-          throw new Error(error.message);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-
-    // const postAiMessage = async () => {
-    //   try {
-    //     fetch('/api/ai-message', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       }
-    //     })
-    //     .then((response) => response.json());
-
     // const fetchLeaderBoard = async () => {
     //   try {
     //     const response = await fetch('/check', {method: 'POST', headers: {'Content-Type': 'application/json'}});
@@ -80,23 +87,32 @@ const Chat = () => {
     //       const error = response.json();
     //       throw new Error(error.message);
     //     }
-
-    //   } catch (err) {
-    //     console.log(err)
-    //   }
-    // }
-
-
-    // postAiMessage();
-    
     // fetchLeaderBoard()
-
+    // postAiMessage();
     fetchAndSetuserId();
     fetchAllMessages();
-  }, []);
+  },[]);
+
+  // const fetchAllMessages = async () => {
+  //   try {
+  //     const response = await fetch('/api/messages');
+  //     if (response.status === 200) {
+  //       const body = await response.json();
+  //       setMessages(body.messages);
+  //     } else {
+  //       const error = response.json();
+  //       throw new Error(error.message);
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
+  // fetchAllMessages();
 
   socket.on('receive-message', (message) => {
     setMessages([...messages, message]);
+    fetchAllMessages();
   });
 
   const createLeaderboard = (leaderboard) => {
@@ -133,7 +149,7 @@ const Chat = () => {
   // Render chatroom elements
   return (
     <div className="chatroom">
-      <h1 onClick={handleAiMessage}>AI-mong Us</h1>
+      {/* <h1 onClick={handleAiMessage}>AI-mong Us</h1> */}
 
       <div>{createLeaderboard(leaderboard)}</div>
 
@@ -151,10 +167,16 @@ const Chat = () => {
           value={messageInput}
           onChange={handleMessageInput}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') handleMessageSend();
+            if (e.key === 'Enter') {
+              handleMessageSend();
+              if (getRandomInt(2) === 0) {
+              postAiMessage();
+              fetchAllMessages();
+              }
+            }
           }}
         ></input>
-        <button onClick={handleMessageSend}>Send</button>
+        <button onClick={() => { handleMessageSend(), postAiMessage(); fetchAllMessages(); }}>Send</button>
       </div>
     </div>
   );

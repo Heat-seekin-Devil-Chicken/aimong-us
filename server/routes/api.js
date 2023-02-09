@@ -19,9 +19,11 @@ router.post(
    dbController.getMessages,
    aiController.getAiMessage,
    dbController.postMessages,
-   (req,res) =>{
-    return res.sendStatus(204).json({ messages: res.locals.newMessage });
-   })
+  (req, res) => {
+    //added this
+    // socket.emit('send-message', { sender_id: 1, message: res.locals.newMessage });
+    return res.status(204).json({ messages: res.locals.newMessage });
+  })
 
 // get a full list of users
 router.get('/users', dbController.getUsers, (req, res) => {

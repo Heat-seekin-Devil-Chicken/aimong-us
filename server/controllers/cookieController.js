@@ -61,7 +61,7 @@ cookieController.verifySsidCookie = async (req, res, next) => {
     const user = await db.query(query, values);
     // console.log('user: ', user.rows);
 
-    console.log(user);
+    //console.log(user);
 
     if (user.rows[0]) {
       res.locals.username = user.rows[0].username;
