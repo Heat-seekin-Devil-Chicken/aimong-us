@@ -8,7 +8,11 @@ const socket = io();
 const Chat = () => {
   // Set initial states
   const [messages, setMessages] = useState([]);
-  const [leaderboard, setLeaderboard] = useState({ first: '', second: '', third: '' });
+  const [leaderboard, setLeaderboard] = useState({
+    first: '',
+    second: '',
+    third: '',
+  });
   console.log(leaderboard);
   const [messageInput, setMessageInput] = useState('');
   const [pollIntervalId, setPollIntervalId] = useState(null);
@@ -58,7 +62,6 @@ const Chat = () => {
       }
     };
 
-
     // const postAiMessage = async () => {
     //   try {
     //     fetch('/api/ai-message', {
@@ -86,9 +89,8 @@ const Chat = () => {
     //   }
     // }
 
-
     // postAiMessage();
-    
+
     // fetchLeaderBoard()
 
     fetchAndSetuserId();
@@ -103,14 +105,15 @@ const Chat = () => {
     const result = [];
     let i = 1;
     for (const key in leaderboard) {
-      result.push(<div>
-        <span>{key}</span>
-        <span>{leaderboard[key]}</span>
-      </div>);
+      result.push(
+        <div>
+          <span>{key}</span>
+          <span>{leaderboard[key]}</span>
+        </div>
+      );
     }
     return result;
-  }
-
+  };
 
   // Create list of message elements to render
   const messageElementList = messages.map((message) => {
@@ -133,7 +136,7 @@ const Chat = () => {
   // Render chatroom elements
   return (
     <div className="chatroom">
-      <h1 onClick={handleAiMessage}>AI-mong Us</h1>
+      {/* <h1 onClick={handleAiMessage}>AI-mong Us</h1> */}
 
       <div>{createLeaderboard(leaderboard)}</div>
 
