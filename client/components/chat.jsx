@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import Message from './message';
 // import Leaderboard from './leaderboard';
+import iconGenerator from '../helpers/icon_generator';
 
 const socket = io();
 
@@ -9,15 +10,14 @@ const Chat = () => {
   // Set initial states
   const [messages, setMessages] = useState([]);
   const [leaderboard, setLeaderboard] = useState({
-    first: '',
-    second: '',
-    third: '',
+    1: '',
+    2: '',
+    3: '',
   });
-  console.log(leaderboard);
+  // console.log(leaderboard);
   const [messageInput, setMessageInput] = useState('');
-  const [pollIntervalId, setPollIntervalId] = useState(null);
-  const [userId, setuserId] = useState(null);
-  const [userScore, setUserScore] = useState(null);
+  const [userId, setuserId] = useState('');
+  const [userScore, setUserScore] = useState('');
 
   // Handler to update state of controlled input
   const handleMessageInput = (e) => setMessageInput(e.target.value);
@@ -41,7 +41,9 @@ const Chat = () => {
       try {
         const response = await fetch('/api/user_id'); // update endpoint when ready
         const userId = await response.json();
-        setuserId(userId.user_id); // update properties to match up if needed
+        setuserId(userId.user_id);
+        console.log(userId);
+        fetchLeaderBoard(userId.user_id); // update properties to match up if needed
       } catch (err) {
         console.log(err);
       }
@@ -49,6 +51,7 @@ const Chat = () => {
 
     const fetchAllMessages = async () => {
       try {
+        console.log('I have been ran');
         const response = await fetch('/api/messages');
         if (response.status === 200) {
           const body = await response.json();
@@ -62,54 +65,54 @@ const Chat = () => {
       }
     };
 
-    // const postAiMessage = async () => {
-    //   try {
-    //     fetch('/api/ai-message', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       }
-    //     })
-    //     .then((response) => response.json());
+    const fetchLeaderBoard = async (user_id) => {
+      try {
+        console.log('test from fetch leaderboard');
+        const response = await fetch('/check', {
+          method: 'POST',
+          headers: {
+            // 'Accept': 'application.json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id,
+          }),
+        });
 
-    // const fetchLeaderBoard = async () => {
-    //   try {
-    //     const response = await fetch('/check', {method: 'POST', headers: {'Content-Type': 'application/json'}});
-    //     if (response.status === 200) {
-    //       const body = await response.json();
-    //       console.log(body);
-    //       // setLeaderboard(body)
-    //     } else {
-    //       const error = response.json();
-    //       throw new Error(error.message);
-    //     }
+        const body = await response.json();
+        console.log(body);
+        const { first_place, second_place, third_place } = body;
+        setLeaderboard({
+          1: first_place,
+          2: second_place,
+          3: third_place,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    };
 
-    //   } catch (err) {
-    //     console.log(err)
-    //   }
-    // }
-
-    // postAiMessage();
-
-    // fetchLeaderBoard()
-
+    fetchLeaderBoard();
     fetchAndSetuserId();
     fetchAllMessages();
   }, []);
 
   socket.on('receive-message', (message) => {
+    console.log('i never get ran');
     setMessages([...messages, message]);
   });
 
   const createLeaderboard = (leaderboard) => {
     const result = [];
+    // console.log('i have been ran');
     let i = 1;
     for (const key in leaderboard) {
       result.push(
-        <div>
-          <span>{key}</span>
-          <span>{leaderboard[key]}</span>
-        </div>
+        <tr className="leaderboardentry" key={i++}>
+          <td>{key}</td>
+          <td>{leaderboard[key][0]}</td>
+          <td>{leaderboard[key][1]}</td>
+        </tr>
       );
     }
     return result;
@@ -117,8 +120,10 @@ const Chat = () => {
 
   // Create list of message elements to render
   const messageElementList = messages.map((message) => {
+    const imgurl = iconGenerator();
     return (
       <Message
+        image={imgurl}
         leaderboard={leaderboard}
         setUserScore={setUserScore}
         setLeaderboard={setLeaderboard}
@@ -136,28 +141,37 @@ const Chat = () => {
   // Render chatroom elements
   return (
     <div className="chatroom">
-      {/* <h1 onClick={handleAiMessage}>AI-mong Us</h1> */}
+      <h1 className="header" onClick={handleAiMessage}>
+        AI-mong Us
+      </h1>
 
-      <div>{createLeaderboard(leaderboard)}</div>
+      <div className="leaderboard">
+        <p>Leaderboard</p>
+        <table>
+          <tr>
+            <th>Rank</th>
+            <th>Username</th>
+            <th>Score</th>
+          </tr>
+          {createLeaderboard(leaderboard)}
+        </table>
 
-      {/* <Leaderboard
-        leaderboard={leaderboard}
-      /> */}
-
-      <div className="messages">
-        <div>{messageElementList}</div>
       </div>
 
-      <div className="message-input">
-        <input
-          placeholder="Say something to the chat..."
-          value={messageInput}
-          onChange={handleMessageInput}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleMessageSend();
-          }}
-        ></input>
-        <button onClick={handleMessageSend}>Send</button>
+      <div className="messageboard">
+        <div className="messages">{messageElementList}</div>
+
+        <div className="message-input">
+          <input
+            placeholder="Say something to the chat..."
+            value={messageInput}
+            onChange={handleMessageInput}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleMessageSend();
+            }}
+          ></input>
+          <button onClick={handleMessageSend}>Send</button>
+        </div>
       </div>
     </div>
   );
