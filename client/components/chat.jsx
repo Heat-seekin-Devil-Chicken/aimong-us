@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import Message from './message';
 // import Leaderboard from './leaderboard';
+import iconGenerator from '../helpers/icon_generator';
 
 const socket = io();
 
@@ -12,6 +13,7 @@ const Chat = () => {
   const [messageInput, setMessageInput] = useState('');
   const [userId, setuserId] = useState(null);
   const [userScore, setUserScore] = useState(null);
+
 
 
   // Handler to update state of controlled input
@@ -76,19 +78,36 @@ const Chat = () => {
   useEffect(() => {
     console.log('USe effect fired');
     socket.on('connect', () => console.log('websockets babyyyyyy'));
-    // const fetchLeaderBoard = async () => {
-    //   try {
-    //     const response = await fetch('/check', {method: 'POST', headers: {'Content-Type': 'application/json'}});
-    //     if (response.status === 200) {
-    //       const body = await response.json();
-    //       console.log(body);
-    //       // setLeaderboard(body)
-    //     } else {
-    //       const error = response.json();
-    //       throw new Error(error.message);
-    //     }
-    // fetchLeaderBoard()
-    // postAiMessage();
+
+
+    const fetchLeaderBoard = async (user_id) => {
+      try {
+        console.log('test from fetch leaderboard');
+        const response = await fetch('/check', {
+          method: 'POST',
+          headers: {
+            // 'Accept': 'application.json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id,
+          }),
+        });
+
+        const body = await response.json();
+        console.log(body);
+        const { first_place, second_place, third_place } = body;
+        setLeaderboard({
+          1: first_place,
+          2: second_place,
+          3: third_place,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchLeaderBoard();
     fetchAndSetuserId();
     fetchAllMessages();
   },[]);
@@ -111,27 +130,33 @@ const Chat = () => {
   // fetchAllMessages();
 
   socket.on('receive-message', (message) => {
+    console.log('i never get ran');
     setMessages([...messages, message]);
     fetchAllMessages();
   });
 
   const createLeaderboard = (leaderboard) => {
     const result = [];
+    // console.log('i have been ran');
     let i = 1;
     for (const key in leaderboard) {
-      result.push(<div>
-        <span>{key}</span>
-        <span>{leaderboard[key]}</span>
-      </div>);
+      result.push(
+        <tr className="leaderboardentry" key={i++}>
+          <td>{key}</td>
+          <td>{leaderboard[key][0]}</td>
+          <td>{leaderboard[key][1]}</td>
+        </tr>
+      );
     }
     return result;
-  }
-
+  };
 
   // Create list of message elements to render
   const messageElementList = messages.map((message) => {
+    const imgurl = iconGenerator();
     return (
       <Message
+        image={imgurl}
         leaderboard={leaderboard}
         setUserScore={setUserScore}
         setLeaderboard={setLeaderboard}
@@ -149,19 +174,28 @@ const Chat = () => {
   // Render chatroom elements
   return (
     <div className="chatroom">
-      {/* <h1 onClick={handleAiMessage}>AI-mong Us</h1> */}
 
-      <div>{createLeaderboard(leaderboard)}</div>
+      <h1 className="header" onClick={handleAiMessage}>
+        AI-mong Us
+      </h1>
 
-      {/* <Leaderboard
-        leaderboard={leaderboard}
-      /> */}
+      <div className="leaderboard">
+        <p>Leaderboard</p>
+        <table>
+          <tr>
+            <th>Rank</th>
+            <th>Username</th>
+            <th>Score</th>
+          </tr>
+          {createLeaderboard(leaderboard)}
+        </table>
 
-      <div className="messages">
-        <div>{messageElementList}</div>
       </div>
 
-      <div className="message-input">
+      <div className="messageboard">
+        <div className="messages">{messageElementList}</div>
+
+       <div className="message-input">
         <input
           placeholder="Say something to the chat..."
           value={messageInput}
@@ -177,6 +211,7 @@ const Chat = () => {
           }}
         ></input>
         <button onClick={() => { handleMessageSend(), postAiMessage(); fetchAllMessages(); }}>Send</button>
+        </div>
       </div>
     </div>
   );
