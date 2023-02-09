@@ -17,7 +17,7 @@ const gameController = {};
 gameController.checkAndIncrement = async (req, res, next) => {
   const { sender_id, user_id } = req.body;
   // if message was written by AI, increment user's point column
-  if (sender_id === '1') {
+  if (sender_id === 1) {
     const query =
       'UPDATE users SET points = points + 1 WHERE user_id = $1 RETURNING points;';
     const values = [user_id];
@@ -28,12 +28,11 @@ gameController.checkAndIncrement = async (req, res, next) => {
       'UPDATE users SET points = points - 1 WHERE user_id = $1 RETURNING points;';
     const values1 = [user_id];
     await db.query(query1, values1);
-    if (sender_id !== '1') {
-      const query2 =
-        'UPDATE users SET points = points + 1 WHERE user_id = $1 RETURNING points;';
-      const values2 = [sender_id];
-      res.locals.points = await db.query(query2, values2);
-    } else res.locals.points = 0;
+
+    const query2 =
+      'UPDATE users SET points = points + 1 WHERE user_id = $1 RETURNING points;';
+    const values2 = [sender_id];
+    res.locals.points = await db.query(query2, values2);
   }
   return next();
 };
@@ -61,7 +60,7 @@ gameController.getLeaderboard = async (req, res, next) => {
 };
 
 gameController.resetLeaderBoard = async (req, res, next) => {
-  if (res.locals.points.rows[0].points >= 10) {
+  if (res.locals.points.rows[0]?.points >= 10) {
     const query = 'UPDATE users SET points = 0;';
     await db.query(query);
   }
