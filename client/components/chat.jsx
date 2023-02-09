@@ -28,6 +28,11 @@ const Chat = () => {
     setMessageInput('');
   };
 
+  // const handleAiMessageSend = () => {
+  //   socket.emit('ai-message', { sender_id: userId, message: messageInput })
+  //   setMessageInput('');
+  // };
+
   // On mount fetch sender id
   useEffect(() => {
     socket.on('connect', () => console.log('websockets babyyyyyy'));
@@ -59,6 +64,7 @@ const Chat = () => {
         console.log(err);
       }
     };
+
     const fetchLeaderBoard = async (user_id) => {
       try {
         console.log('test from fetch leaderboard');
@@ -149,6 +155,7 @@ const Chat = () => {
           </tr>
           {createLeaderboard(leaderboard)}
         </table>
+
       </div>
 
       <div className="messageboard">
